@@ -1,5 +1,10 @@
 # Arquitetura Orientada a Serviços (SOA) e Web Services — Deslocai Backend
 
+## Integrantes
+
+- Jefferson Junior Alvarez Moya — RM 558497
+- Gabriel Barros Mazzariol — RM 555410
+
 ## Ficha da CitizenTech (Base Comum da Equipe)
 
 | Campo | Definição Oficial do Projeto |
