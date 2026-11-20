@@ -1,0 +1,1494 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Deslocai CitizenTech — SOA & Web Services API",
+    "description": "Camada de Backend Orientada a Serviços (SOA) da CitizenTech **Deslocai** (3ES - FIAP 2026).\n\n- **Problema resolvido:** Superlotação imprevisível, calor extremo nos vagões/pontos e falta de avisos em tempo real sobre equipamentos de acessibilidade quebrados (elevadores e escadas rolantes).\n- **Integrações nativas:** Recebe telemetria IoT do **ESP32 (Wokwi)** e consome o modelo preditivo **Random Forest** treinado com dados públicos reais (**Portal SP156 + INMET 2024**).\n- **ODS Conectados:** ODS 9, ODS 10 e ODS 11.",
+    "contact": {
+      "name": "Equipe Deslocai - Engenharia de Software (3ES FIAP)"
+    },
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "1. Governança SOA & Banco de Dados"
+        ],
+        "summary": "Verifica integridade do serviço, banco de dados e modelo ML",
+        "operationId": "health_check_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/migrations": {
+      "get": {
+        "tags": [
+          "1. Governança SOA & Banco de Dados"
+        ],
+        "summary": "Lista o histórico de migrações versionadas aplicadas no banco de dados",
+        "operationId": "list_migrations_api_v1_system_migrations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations": {
+      "get": {
+        "tags": [
+          "2. Estações & Mobilidade Urbana"
+        ],
+        "summary": "Lista todas as estações monitoradas com lotação, clima e score de acessibilidade",
+        "operationId": "list_stations_api_v1_stations_get",
+        "parameters": [
+          {
+            "name": "risk_level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar por nível de risco (NORMAL, ATENCAO, CRITICO)",
+              "title": "Risk Level"
+            },
+            "description": "Filtrar por nível de risco (NORMAL, ATENCAO, CRITICO)"
+          },
+          {
+            "name": "transport_mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar por modal (METRO, TREM, ONIBUS, INTEGRACAO_MULTIMODAL)",
+              "title": "Transport Mode"
+            },
+            "description": "Filtrar por modal (METRO, TREM, ONIBUS, INTEGRACAO_MULTIMODAL)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StationResponseDTO"
+                  },
+                  "title": "Response List Stations Api V1 Stations Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "2. Estações & Mobilidade Urbana"
+        ],
+        "summary": "Cadastra uma nova estação ou terminal no monitoramento Deslocai",
+        "operationId": "create_station_api_v1_stations_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StationCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations/{station_code}": {
+      "get": {
+        "tags": [
+          "2. Estações & Mobilidade Urbana"
+        ],
+        "summary": "Consulta detalhes em tempo real de uma estação pelo código (ex: EST-SE-01)",
+        "operationId": "get_station_api_v1_stations__station_code__get",
+        "parameters": [
+          {
+            "name": "station_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Station Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StationResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stations/{station_code}/equipments": {
+      "get": {
+        "tags": [
+          "3. Acessibilidade PCD & Idosos"
+        ],
+        "summary": "Lista todos os elevadores PCD e escadas rolantes de uma estação",
+        "operationId": "list_station_equipments_api_v1_stations__station_code__equipments_get",
+        "parameters": [
+          {
+            "name": "station_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Station Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EquipmentResponseDTO"
+                  },
+                  "title": "Response List Station Equipments Api V1 Stations  Station Code  Equipments Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/equipments/{equipment_code}/status": {
+      "patch": {
+        "tags": [
+          "3. Acessibilidade PCD & Idosos"
+        ],
+        "summary": "Atualiza o estado operacional de um elevador ou escada rolante e recalcula o Score PCD",
+        "operationId": "update_equipment_status_api_v1_equipments__equipment_code__status_patch",
+        "parameters": [
+          {
+            "name": "equipment_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Equipment Code"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EquipmentStatusUpdateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EquipmentResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/routes/accessible-recommendations": {
+      "get": {
+        "tags": [
+          "3. Acessibilidade PCD & Idosos"
+        ],
+        "summary": "Recomenda estações acessíveis e seguras para PCDs/Idosos e calcula indicadores de impacto ODS",
+        "operationId": "get_accessible_route_recommendations_api_v1_routes_accessible_recommendations_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/telemetry": {
+      "post": {
+        "tags": [
+          "4. Physical Computing IoT (ESP32 Wokwi)"
+        ],
+        "summary": "Recebe telemetria em tempo real do Totem IoT ESP32 (Temperatura, Lotação, Elevador, SOS PCD)",
+        "operationId": "ingest_telemetry_api_v1_telemetry_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TelemetryIngestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TelemetryResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "4. Physical Computing IoT (ESP32 Wokwi)"
+        ],
+        "summary": "Lista o histórico recente de pacotes de telemetria enviados pelos nós ESP32",
+        "operationId": "list_telemetry_api_v1_telemetry_get",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtrar por ID da estação",
+              "title": "Station Id"
+            },
+            "description": "Filtrar por ID da estação"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TelemetryResponseDTO"
+                  },
+                  "title": "Response List Telemetry Api V1 Telemetry Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alerts": {
+      "get": {
+        "tags": [
+          "5. Alertas em Tempo Real ao Cidadão"
+        ],
+        "summary": "Lista os alertas ativos de superlotação, calor extremo e falha de elevadores",
+        "operationId": "list_active_alerts_api_v1_alerts_get",
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Station Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CitizenAlertResponseDTO"
+                  },
+                  "title": "Response List Active Alerts Api V1 Alerts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "5. Alertas em Tempo Real ao Cidadão"
+        ],
+        "summary": "Registra um novo alerta colaborativo reportado por passageiro ou agente de estação",
+        "operationId": "create_alert_api_v1_alerts_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CitizenAlertCreateDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CitizenAlertResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alerts/{alert_id}/resolve": {
+      "patch": {
+        "tags": [
+          "5. Alertas em Tempo Real ao Cidadão"
+        ],
+        "summary": "Marca um alerta como resolvido após normalização do equipamento ou fluxo",
+        "operationId": "resolve_alert_api_v1_alerts__alert_id__resolve_patch",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Alert Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CitizenAlertResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/predict-risk": {
+      "post": {
+        "tags": [
+          "6. Inteligência Artificial & Machine Learning"
+        ],
+        "summary": "Executa predição de Atraso Crítico no modelo Random Forest treinado com dados SP156 + INMET",
+        "operationId": "predict_ml_risk_api_v1_ml_predict_risk_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MLPredictionRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MLPredictionResponseDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ml/metrics": {
+      "get": {
+        "tags": [
+          "6. Inteligência Artificial & Machine Learning"
+        ],
+        "summary": "Retorna as métricas auditáveis de Treino, Teste e GridSearchCV (18 combinações) do modelo ML",
+        "operationId": "get_ml_metrics_api_v1_ml_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertSeverity": {
+        "type": "string",
+        "enum": [
+          "INFO",
+          "WARNING",
+          "CRITICAL"
+        ],
+        "title": "AlertSeverity"
+      },
+      "CitizenAlertCreateDTO": {
+        "properties": {
+          "station_code": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "title": "Station Code",
+            "examples": [
+              "EST-SE-01"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 5,
+            "title": "Title",
+            "examples": [
+              "Elevador PCD parado no acesso Norte"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 10,
+            "title": "Description",
+            "examples": [
+              "Passageiro cadeirante aguarda apoio próximo à catraca central."
+            ]
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "default": "ACESSIBILIDADE_PCD",
+            "examples": [
+              "ACESSIBILIDADE_PCD"
+            ]
+          },
+          "severity": {
+            "$ref": "#/components/schemas/AlertSeverity",
+            "default": "CRITICAL"
+          },
+          "reported_by": {
+            "type": "string",
+            "title": "Reported By",
+            "default": "CIDADAO_APP",
+            "examples": [
+              "CIDADAO_PCD_VERIFICADO"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "station_code",
+          "title",
+          "description"
+        ],
+        "title": "CitizenAlertCreateDTO"
+      },
+      "CitizenAlertResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "station_id": {
+            "type": "integer",
+            "title": "Station Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "reported_by": {
+            "type": "string",
+            "title": "Reported By"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "station_id",
+          "title",
+          "description",
+          "category",
+          "severity",
+          "reported_by",
+          "is_active"
+        ],
+        "title": "CitizenAlertResponseDTO"
+      },
+      "CrowdingLevel": {
+        "type": "string",
+        "enum": [
+          "BAIXA",
+          "MODERADA",
+          "ALTA",
+          "SUPERLOTADO"
+        ],
+        "title": "CrowdingLevel"
+      },
+      "EquipmentResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "station_id": {
+            "type": "integer",
+            "title": "Station Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "equipment_type": {
+            "$ref": "#/components/schemas/EquipmentType"
+          },
+          "location_description": {
+            "type": "string",
+            "title": "Location Description"
+          },
+          "status": {
+            "$ref": "#/components/schemas/EquipmentStatus"
+          },
+          "last_maintenance_note": {
+            "type": "string",
+            "title": "Last Maintenance Note"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "station_id",
+          "code",
+          "name",
+          "equipment_type",
+          "location_description",
+          "status",
+          "last_maintenance_note"
+        ],
+        "title": "EquipmentResponseDTO"
+      },
+      "EquipmentStatus": {
+        "type": "string",
+        "enum": [
+          "OPERANTE",
+          "INOPERANTE",
+          "MANUTENCAO"
+        ],
+        "title": "EquipmentStatus"
+      },
+      "EquipmentStatusUpdateDTO": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/EquipmentStatus",
+            "description": "Novo estado operacional do equipamento (OPERANTE, INOPERANTE, MANUTENCAO).",
+            "examples": [
+              "INOPERANTE"
+            ]
+          },
+          "last_maintenance_note": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 3,
+            "title": "Last Maintenance Note",
+            "description": "Observação técnica sobre a ocorrência ou reparo.",
+            "default": "Atualização via painel de manutenção / sensor IoT.",
+            "examples": [
+              "Falha elétrica na botoeira do elevador PCD."
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "EquipmentStatusUpdateDTO"
+      },
+      "EquipmentType": {
+        "type": "string",
+        "enum": [
+          "ELEVADOR_PCD",
+          "ESCADA_ROLANTE",
+          "PLATAFORMA_ELEVATORIA",
+          "PISO_TATIL_SONORO"
+        ],
+        "title": "EquipmentType"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MLPredictionRequestDTO": {
+        "properties": {
+          "temp_max_c": {
+            "type": "number",
+            "maximum": 50.0,
+            "minimum": 0.0,
+            "title": "Temp Max C",
+            "default": 32.8,
+            "examples": [
+              33.5
+            ]
+          },
+          "temp_min_c": {
+            "type": "number",
+            "maximum": 45.0,
+            "minimum": -5.0,
+            "title": "Temp Min C",
+            "default": 21.0,
+            "examples": [
+              22.0
+            ]
+          },
+          "umidade_media_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 10.0,
+            "title": "Umidade Media Pct",
+            "default": 65.0,
+            "examples": [
+              68.0
+            ]
+          },
+          "precipitacao_total_mm": {
+            "type": "number",
+            "maximum": 300.0,
+            "minimum": 0.0,
+            "title": "Precipitacao Total Mm",
+            "default": 8.5,
+            "examples": [
+              12.4
+            ]
+          },
+          "categoria_deslocai": {
+            "type": "string",
+            "title": "Categoria Deslocai",
+            "description": "Opções: INFRA_ESTACAO_E_PONTO, SUPERLOTACAO_E_INTERVALO, ACESSIBILIDADE_PCD, OPERACAO_EMBARQUE, CIRCULACAO_E_VIAS, ATENDIMENTO_IDOSO, BILHETE_UNICO_E_TARIFA",
+            "default": "INFRA_ESTACAO_E_PONTO",
+            "examples": [
+              "INFRA_ESTACAO_E_PONTO"
+            ]
+          },
+          "meio_comunicacao": {
+            "type": "string",
+            "title": "Meio Comunicacao",
+            "default": "MOBILE",
+            "examples": [
+              "MOBILE"
+            ]
+          },
+          "tema": {
+            "type": "string",
+            "title": "Tema",
+            "default": "Trânsito e Transporte",
+            "examples": [
+              "Trânsito e Transporte"
+            ]
+          },
+          "orgao_agrupado": {
+            "type": "string",
+            "title": "Orgao Agrupado",
+            "default": "INTEGRACAO-SPTRANS",
+            "examples": [
+              "INTEGRACAO-SPTRANS"
+            ]
+          },
+          "regiao_sp": {
+            "type": "string",
+            "title": "Regiao Sp",
+            "default": "SE",
+            "examples": [
+              "SE"
+            ]
+          },
+          "volume_chamados_dia": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 1.0,
+            "title": "Volume Chamados Dia",
+            "default": 62,
+            "examples": [
+              75
+            ]
+          }
+        },
+        "type": "object",
+        "title": "MLPredictionRequestDTO",
+        "description": "Parâmetros de entrada para predição em tempo real no modelo Random Forest\ntreinado com dados reais do SP156 + INMET (2024)."
+      },
+      "MLPredictionResponseDTO": {
+        "properties": {
+          "predicted_critical_delay": {
+            "type": "boolean",
+            "title": "Predicted Critical Delay"
+          },
+          "probability_critical_delay": {
+            "type": "number",
+            "title": "Probability Critical Delay"
+          },
+          "risk_classification": {
+            "type": "string",
+            "title": "Risk Classification"
+          },
+          "citizen_recommendation": {
+            "type": "string",
+            "title": "Citizen Recommendation"
+          },
+          "model_used": {
+            "type": "string",
+            "title": "Model Used"
+          },
+          "dataset_source": {
+            "type": "string",
+            "title": "Dataset Source"
+          }
+        },
+        "type": "object",
+        "required": [
+          "predicted_critical_delay",
+          "probability_critical_delay",
+          "risk_classification",
+          "citizen_recommendation",
+          "model_used",
+          "dataset_source"
+        ],
+        "title": "MLPredictionResponseDTO"
+      },
+      "RiskLevel": {
+        "type": "string",
+        "enum": [
+          "NORMAL",
+          "ATENCAO",
+          "CRITICO"
+        ],
+        "title": "RiskLevel"
+      },
+      "StationCreateDTO": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "title": "Code",
+            "examples": [
+              "EST-VMA-06"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 3,
+            "title": "Name",
+            "examples": [
+              "Estação Vila Mariana"
+            ]
+          },
+          "line_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 3,
+            "title": "Line Name",
+            "examples": [
+              "Linha 1-Azul"
+            ]
+          },
+          "transport_mode": {
+            "$ref": "#/components/schemas/TransportMode",
+            "default": "METRO"
+          },
+          "district": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "District",
+            "examples": [
+              "VILA MARIANA"
+            ]
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude",
+            "examples": [
+              -23.5895
+            ]
+          },
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude",
+            "examples": [
+              -46.6346
+            ]
+          },
+          "daily_passengers_avg": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Daily Passengers Avg",
+            "default": 65000,
+            "examples": [
+              65000
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "name",
+          "line_name",
+          "district",
+          "latitude",
+          "longitude"
+        ],
+        "title": "StationCreateDTO"
+      },
+      "StationResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "line_name": {
+            "type": "string",
+            "title": "Line Name"
+          },
+          "transport_mode": {
+            "type": "string",
+            "title": "Transport Mode"
+          },
+          "district": {
+            "type": "string",
+            "title": "District"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude"
+          },
+          "daily_passengers_avg": {
+            "type": "integer",
+            "title": "Daily Passengers Avg"
+          },
+          "current_occupancy_pct": {
+            "type": "integer",
+            "title": "Current Occupancy Pct"
+          },
+          "current_temperature_c": {
+            "type": "number",
+            "title": "Current Temperature C"
+          },
+          "current_humidity_pct": {
+            "type": "number",
+            "title": "Current Humidity Pct"
+          },
+          "current_heat_index_c": {
+            "type": "number",
+            "title": "Current Heat Index C"
+          },
+          "crowding_level": {
+            "type": "string",
+            "title": "Crowding Level"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "accessibility_score": {
+            "type": "integer",
+            "title": "Accessibility Score"
+          },
+          "pcd_sos_active": {
+            "type": "boolean",
+            "title": "Pcd Sos Active"
+          },
+          "estimated_wait_minutes": {
+            "type": "number",
+            "title": "Estimated Wait Minutes",
+            "default": 3.5
+          },
+          "equipments": {
+            "items": {
+              "$ref": "#/components/schemas/EquipmentResponseDTO"
+            },
+            "type": "array",
+            "title": "Equipments",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "code",
+          "name",
+          "line_name",
+          "transport_mode",
+          "district",
+          "latitude",
+          "longitude",
+          "daily_passengers_avg",
+          "current_occupancy_pct",
+          "current_temperature_c",
+          "current_humidity_pct",
+          "current_heat_index_c",
+          "crowding_level",
+          "risk_level",
+          "accessibility_score",
+          "pcd_sos_active"
+        ],
+        "title": "StationResponseDTO"
+      },
+      "TelemetryIngestDTO": {
+        "properties": {
+          "node_id": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 3,
+            "title": "Node Id",
+            "examples": [
+              "DESLOCAI-IOT-ESP32-01"
+            ]
+          },
+          "station_code": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 3,
+            "title": "Station Code",
+            "examples": [
+              "EST-SE-01"
+            ]
+          },
+          "station_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Station Name",
+            "examples": [
+              "Estacao Se - Linha 3 Vermelha"
+            ]
+          },
+          "temperature_c": {
+            "type": "number",
+            "maximum": 65.0,
+            "minimum": -10.0,
+            "title": "Temperature C",
+            "examples": [
+              33.4
+            ]
+          },
+          "humidity_pct": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Humidity Pct",
+            "examples": [
+              68.0
+            ]
+          },
+          "heat_index_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heat Index C",
+            "examples": [
+              41.2
+            ]
+          },
+          "distance_cm": {
+            "type": "integer",
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Distance Cm",
+            "default": 100,
+            "examples": [
+              35
+            ]
+          },
+          "occupancy_pct": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Occupancy Pct",
+            "examples": [
+              92
+            ]
+          },
+          "crowding_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrowdingLevel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "examples": [
+              "SUPERLOTADO"
+            ]
+          },
+          "elevator_operational": {
+            "type": "boolean",
+            "title": "Elevator Operational",
+            "examples": [
+              false
+            ]
+          },
+          "escalator_operational": {
+            "type": "boolean",
+            "title": "Escalator Operational",
+            "examples": [
+              true
+            ]
+          },
+          "pcd_sos_active": {
+            "type": "boolean",
+            "title": "Pcd Sos Active",
+            "default": false,
+            "examples": [
+              true
+            ]
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RiskLevel"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "examples": [
+              "CRITICO"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "node_id",
+          "station_code",
+          "temperature_c",
+          "humidity_pct",
+          "occupancy_pct",
+          "elevator_operational",
+          "escalator_operational"
+        ],
+        "title": "TelemetryIngestDTO",
+        "description": "Payload enviado pelo Totem IoT ESP32 (Wokwi) para o Backend SOA.\nCompatível campo a campo com `sketch.ino`."
+      },
+      "TelemetryResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "station_id": {
+            "type": "integer",
+            "title": "Station Id"
+          },
+          "node_id": {
+            "type": "string",
+            "title": "Node Id"
+          },
+          "temperature_c": {
+            "type": "number",
+            "title": "Temperature C"
+          },
+          "humidity_pct": {
+            "type": "number",
+            "title": "Humidity Pct"
+          },
+          "heat_index_c": {
+            "type": "number",
+            "title": "Heat Index C"
+          },
+          "distance_cm": {
+            "type": "integer",
+            "title": "Distance Cm"
+          },
+          "occupancy_pct": {
+            "type": "integer",
+            "title": "Occupancy Pct"
+          },
+          "crowding_level": {
+            "type": "string",
+            "title": "Crowding Level"
+          },
+          "elevator_operational": {
+            "type": "boolean",
+            "title": "Elevator Operational"
+          },
+          "escalator_operational": {
+            "type": "boolean",
+            "title": "Escalator Operational"
+          },
+          "pcd_sos_active": {
+            "type": "boolean",
+            "title": "Pcd Sos Active"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recorded At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "station_id",
+          "node_id",
+          "temperature_c",
+          "humidity_pct",
+          "heat_index_c",
+          "distance_cm",
+          "occupancy_pct",
+          "crowding_level",
+          "elevator_operational",
+          "escalator_operational",
+          "pcd_sos_active",
+          "risk_level"
+        ],
+        "title": "TelemetryResponseDTO"
+      },
+      "TransportMode": {
+        "type": "string",
+        "enum": [
+          "METRO",
+          "TREM",
+          "ONIBUS",
+          "INTEGRACAO_MULTIMODAL"
+        ],
+        "title": "TransportMode"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

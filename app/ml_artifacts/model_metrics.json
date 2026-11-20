@@ -1,0 +1,322 @@
+{
+  "dataset_total_rows": 17990,
+  "train_rows": 14392,
+  "test_rows": 3598,
+  "positive_class_rate": 0.326,
+  "best_params": {
+    "clf__max_depth": 12,
+    "clf__min_samples_leaf": 1,
+    "clf__n_estimators": 160
+  },
+  "best_rf_metrics": {
+    "model": "Random Forest (Regularizado / GridSearch)",
+    "train_accuracy": 0.9406,
+    "test_accuracy": 0.9247,
+    "train_precision": 0.8732,
+    "test_precision": 0.8469,
+    "train_recall": 0.9567,
+    "test_recall": 0.9386,
+    "train_f1": 0.913,
+    "test_f1": 0.8904,
+    "train_roc_auc": 0.9879,
+    "test_roc_auc": 0.9741,
+    "f1_gap": 0.0226
+  },
+  "overfit_rf_metrics": {
+    "model": "Random Forest (Sem Poda / Overfitting)",
+    "train_accuracy": 0.968,
+    "test_accuracy": 0.9205,
+    "train_precision": 0.9423,
+    "test_precision": 0.868,
+    "train_recall": 0.9606,
+    "test_recall": 0.8917,
+    "train_f1": 0.9513,
+    "test_f1": 0.8797,
+    "train_roc_auc": 0.9952,
+    "test_roc_auc": 0.9706,
+    "f1_gap": 0.0716
+  },
+  "mlp_metrics": {
+    "model": "MLP Neural Network (64x32)",
+    "train_accuracy": 0.9597,
+    "test_accuracy": 0.9191,
+    "train_precision": 0.9255,
+    "test_precision": 0.8633,
+    "train_recall": 0.9531,
+    "test_recall": 0.8934,
+    "train_f1": 0.9391,
+    "test_f1": 0.8781,
+    "train_roc_auc": 0.9928,
+    "test_roc_auc": 0.9678,
+    "f1_gap": 0.061
+  },
+  "kmeans_pca_silhouette": 0.3844,
+  "top_features": [
+    {
+      "feature": "categoria_deslocai_ATENDIMENTO_IDOSO",
+      "importance": 0.10001741485086883
+    },
+    {
+      "feature": "categoria_deslocai_OPERACAO_EMBARQUE",
+      "importance": 0.09236584159003318
+    },
+    {
+      "feature": "categoria_deslocai_ACESSIBILIDADE_PCD",
+      "importance": 0.08535077678981927
+    },
+    {
+      "feature": "Tema_Bilhete Único",
+      "importance": 0.05908557280366924
+    },
+    {
+      "feature": "orgao_agrupado_SMT-DSV-DAUT",
+      "importance": 0.05612000340575292
+    },
+    {
+      "feature": "categoria_deslocai_BILHETE_UNICO_E_TARIFA",
+      "importance": 0.0542582908317922
+    },
+    {
+      "feature": "orgao_agrupado_INTEGRAÇÃO-SMT-DSV",
+      "importance": 0.0484116188415392
+    },
+    {
+      "feature": "volume_chamados_dia",
+      "importance": 0.04631064150458785
+    },
+    {
+      "feature": "Meio de Comunicação_INTEGRACAO",
+      "importance": 0.043716115313230636
+    },
+    {
+      "feature": "categoria_deslocai_SUPERLOTACAO_E_INTERVALO",
+      "importance": 0.042494629716945925
+    },
+    {
+      "feature": "Tema_Trânsito e Transporte",
+      "importance": 0.032673544273284894
+    },
+    {
+      "feature": "regiao_sp_NAO_INFORMADA",
+      "importance": 0.029382063285678345
+    }
+  ],
+  "cv_18_combinations": [
+    {
+      "n_estimators": 160,
+      "max_depth": 12,
+      "min_samples_leaf": 1,
+      "CV_Train_F1": 0.9173,
+      "CV_Val_F1": 0.8858,
+      "CV_Train_AUC": 0.9889,
+      "CV_Val_AUC": 0.9747,
+      "CV_Val_Acc": 0.9223,
+      "Rank": 1,
+      "Overfit_Gap_F1": 0.0315
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 12,
+      "min_samples_leaf": 1,
+      "CV_Train_F1": 0.9187,
+      "CV_Val_F1": 0.8846,
+      "CV_Train_AUC": 0.9891,
+      "CV_Val_AUC": 0.9745,
+      "CV_Val_Acc": 0.9216,
+      "Rank": 2,
+      "Overfit_Gap_F1": 0.0341
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 22,
+      "min_samples_leaf": 5,
+      "CV_Train_F1": 0.9051,
+      "CV_Val_F1": 0.8843,
+      "CV_Train_AUC": 0.9862,
+      "CV_Val_AUC": 0.9743,
+      "CV_Val_Acc": 0.9207,
+      "Rank": 3,
+      "Overfit_Gap_F1": 0.0208
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 22,
+      "min_samples_leaf": 5,
+      "CV_Train_F1": 0.9056,
+      "CV_Val_F1": 0.8841,
+      "CV_Train_AUC": 0.9862,
+      "CV_Val_AUC": 0.9741,
+      "CV_Val_Acc": 0.9206,
+      "Rank": 4,
+      "Overfit_Gap_F1": 0.0215
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 12,
+      "min_samples_leaf": 5,
+      "CV_Train_F1": 0.8969,
+      "CV_Val_F1": 0.8837,
+      "CV_Train_AUC": 0.9835,
+      "CV_Val_AUC": 0.9744,
+      "CV_Val_Acc": 0.9201,
+      "Rank": 5,
+      "Overfit_Gap_F1": 0.0131
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 12,
+      "min_samples_leaf": 5,
+      "CV_Train_F1": 0.8976,
+      "CV_Val_F1": 0.8827,
+      "CV_Train_AUC": 0.9835,
+      "CV_Val_AUC": 0.9742,
+      "CV_Val_Acc": 0.9193,
+      "Rank": 6,
+      "Overfit_Gap_F1": 0.015
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 22,
+      "min_samples_leaf": 1,
+      "CV_Train_F1": 0.9531,
+      "CV_Val_F1": 0.8786,
+      "CV_Train_AUC": 0.9952,
+      "CV_Val_AUC": 0.9708,
+      "CV_Val_Acc": 0.9195,
+      "Rank": 7,
+      "Overfit_Gap_F1": 0.0745
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 22,
+      "min_samples_leaf": 1,
+      "CV_Train_F1": 0.9527,
+      "CV_Val_F1": 0.8768,
+      "CV_Train_AUC": 0.9952,
+      "CV_Val_AUC": 0.9702,
+      "CV_Val_Acc": 0.9183,
+      "Rank": 8,
+      "Overfit_Gap_F1": 0.0759
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 12,
+      "min_samples_leaf": 15,
+      "CV_Train_F1": 0.8838,
+      "CV_Val_F1": 0.8766,
+      "CV_Train_AUC": 0.9785,
+      "CV_Val_AUC": 0.9723,
+      "CV_Val_Acc": 0.9147,
+      "Rank": 9,
+      "Overfit_Gap_F1": 0.0072
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 12,
+      "min_samples_leaf": 15,
+      "CV_Train_F1": 0.8832,
+      "CV_Val_F1": 0.8764,
+      "CV_Train_AUC": 0.9786,
+      "CV_Val_AUC": 0.9723,
+      "CV_Val_Acc": 0.9145,
+      "Rank": 10,
+      "Overfit_Gap_F1": 0.0068
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 22,
+      "min_samples_leaf": 15,
+      "CV_Train_F1": 0.8849,
+      "CV_Val_F1": 0.8763,
+      "CV_Train_AUC": 0.9795,
+      "CV_Val_AUC": 0.9724,
+      "CV_Val_Acc": 0.9147,
+      "Rank": 11,
+      "Overfit_Gap_F1": 0.0086
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 22,
+      "min_samples_leaf": 15,
+      "CV_Train_F1": 0.8852,
+      "CV_Val_F1": 0.8763,
+      "CV_Train_AUC": 0.9795,
+      "CV_Val_AUC": 0.9723,
+      "CV_Val_Acc": 0.9148,
+      "Rank": 12,
+      "Overfit_Gap_F1": 0.0089
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 1,
+      "CV_Train_F1": 0.8764,
+      "CV_Val_F1": 0.87,
+      "CV_Train_AUC": 0.9713,
+      "CV_Val_AUC": 0.9676,
+      "CV_Val_Acc": 0.9092,
+      "Rank": 13,
+      "Overfit_Gap_F1": 0.0064
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 5,
+      "CV_Train_F1": 0.875,
+      "CV_Val_F1": 0.8699,
+      "CV_Train_AUC": 0.9705,
+      "CV_Val_AUC": 0.9672,
+      "CV_Val_Acc": 0.909,
+      "Rank": 14,
+      "Overfit_Gap_F1": 0.0052
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 6,
+      "min_samples_leaf": 1,
+      "CV_Train_F1": 0.8752,
+      "CV_Val_F1": 0.8693,
+      "CV_Train_AUC": 0.971,
+      "CV_Val_AUC": 0.9673,
+      "CV_Val_Acc": 0.9088,
+      "Rank": 15,
+      "Overfit_Gap_F1": 0.0059
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 6,
+      "min_samples_leaf": 5,
+      "CV_Train_F1": 0.8743,
+      "CV_Val_F1": 0.8688,
+      "CV_Train_AUC": 0.97,
+      "CV_Val_AUC": 0.9668,
+      "CV_Val_Acc": 0.9082,
+      "Rank": 16,
+      "Overfit_Gap_F1": 0.0055
+    },
+    {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 15,
+      "CV_Train_F1": 0.8722,
+      "CV_Val_F1": 0.8686,
+      "CV_Train_AUC": 0.9692,
+      "CV_Val_AUC": 0.9666,
+      "CV_Val_Acc": 0.908,
+      "Rank": 17,
+      "Overfit_Gap_F1": 0.0035
+    },
+    {
+      "n_estimators": 80,
+      "max_depth": 6,
+      "min_samples_leaf": 15,
+      "CV_Train_F1": 0.8714,
+      "CV_Val_F1": 0.8674,
+      "CV_Train_AUC": 0.9688,
+      "CV_Val_AUC": 0.9663,
+      "CV_Val_Acc": 0.9072,
+      "Rank": 18,
+      "Overfit_Gap_F1": 0.0041
+    }
+  ]
+}
